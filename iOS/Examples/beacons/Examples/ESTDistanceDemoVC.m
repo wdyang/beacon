@@ -7,8 +7,10 @@
 //
 
 #import "ESTDistanceDemoVC.h"
+#import "AFNetworking.h"
+#import "MJExtension.h"
 #import <EstimoteSDK/ESTBeaconManager.h>
-
+#import <EstimoteSDK/ESTBluetoothBeacon.h>
 /*
  * Maximum distance (in meters) from beacon for which, the dot will be visible on screen.
  */
@@ -91,6 +93,7 @@
     CLBeacon *firstBeacon = [beacons firstObject];
     
     [self updateDotPositionForDistance:firstBeacon.accuracy];
+    [self onPostData:firstBeacon];
 }
 
 #pragma mark -
@@ -106,4 +109,44 @@
     [self.positionDot setCenter:CGPointMake(self.positionDot.center.x, newY)];
 }
 
+
+
+-(void)onPostData:(CLBeacon*)changeBeacon
+{
+    AFHTTPRequestOperationManager * manager=[AFHTTPRequestOperationManager manager];
+    manager.securityPolicy = [AFSecurityPolicy policyWithPinningMode:AFSSLPinningModeNone];
+    manager.requestSerializer = [AFJSONRequestSerializer serializer];
+    manager.responseSerializer = [AFJSONResponseSerializer serializer];
+    [manager.requestSerializer setValue:@"application/json" forHTTPHeaderField:@"Accept"];
+    [manager.requestSerializer setValue:@"application/json; charset=utf-8" forHTTPHeaderField:@"Content-Type"];
+
+    
+    [CLBeacon setupIgnoredPropertyNames:^NSArray *{
+        return @[@"accuracy",@"proximityUUID",@"proximity"];
+    }];
+    
+
+    
+    NSMutableDictionary *beaconJson = [[NSMutableDictionary alloc] initWithDictionary:changeBeacon.keyValues];
+    
+    if (changeBeacon.proximityUUID.UUIDString) {
+        [beaconJson setObject:changeBeacon.proximityUUID.UUIDString forKey:@"proximityUUID"];
+     }
+    
+ 
+    [beaconJson setObject:@"iOS" forKey:@"macAddress"];
+    [beaconJson setObject:@"0" forKey:@"measuredPower"];
+
+    
+    [manager POST:@"http://beacon.code4demo.com/api/beaconDistance/add"
+       parameters:@{@"beacon":beaconJson,@"distance":@(changeBeacon.accuracy)}
+          success:^(AFHTTPRequestOperation *operation, id responseObject) {
+              NSLog(@"%@",responseObject);
+          }
+          failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+              NSLog(@"%@",error);
+
+          }];
+    
+}
 @end

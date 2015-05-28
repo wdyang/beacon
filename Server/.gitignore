@@ -1,0 +1,5 @@
+.DS_Store
+private.xml
+app/node_modules/*
+app/public/images/makerUpload/*
+!app/public/images/makerUpload/readme.txt

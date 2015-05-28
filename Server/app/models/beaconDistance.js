@@ -27,13 +27,21 @@ var BeaconDistance = new Schema({
       // .where('name.last').equals('Ghost')
       // .where('age').gt(17).lt(66)
       // .where('likes').in(['vaporizing', 'talking'])
-      // .sort('-occupation')
+      .sort('submittedAt')
       .limit(condition.items)
-      .skip(condition.page)
+      .skip(condition.page*condition.items)
       .select('beacon distance submittedAt')
       .exec(function(err,beaconDistances){
         return  cb(err,beaconDistances);
     });
+    }
+
+//clear 
+   schema.statics.clear = function(cb){
+       var self = this;
+      return  self.remove("*",function(err){
+        cb(err);
+      });
     }
 
 //add  

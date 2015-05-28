@@ -5,7 +5,11 @@ var router = express.Router();
 
 function getAll(req, res) {
   
- return   BeaconDistance.getAll({page:0,items:10},function(err,beaconDistances){
+  var condtions = null;
+  if (req.parameters.page && req.parameters.items) {
+     condtions ={page:req.parameters.page,items:req.parameters.items};
+  };
+ return   BeaconDistance.getAll(condtions,function(err,beaconDistances){
         return res.send({status: 0, 
                         message: "get All info success",
                         content:beaconDistances});
@@ -15,6 +19,18 @@ function getAll(req, res) {
 //getAll
 router.all("/getAll",getAll );
 router.all("/",getAll );
+
+//clear
+router.all("/clear",function(req, res){
+  return  BeaconDistance.clear(function (err) {
+        if (err) {
+          return res.send({status: 1, message: "clear fail"});
+        } else {
+          return res.send({status: 0, message: "clear Success."});
+         }
+    });
+});
+
  
 //add  
 router.all('/add', function (req, res) {
