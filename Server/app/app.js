@@ -24,7 +24,7 @@ app.use(function(req, res, next) {
   var contentType = req.headers['content-type'] || ''
     , mime = contentType.split(';')[0];
 
-  if (mime != 'text/plain') {
+  if (mime != 'text/plain' || mime != 'application/json' ) {
     return next();
   }
 
@@ -56,6 +56,10 @@ app.use('/api', json_express);
 mongoose.connect('mongodb://beacon:beacon@mongodb.code4demo.com/beacon');
 // mongoose.connect('mongodb://localhost/beacon');
 
+app.use('/', function(req, res, next){
+  res.send("ivyarjmy");
+  return;
+})
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
     var err = new Error('Not Found');
@@ -90,6 +94,6 @@ app.use(function(err, req, res, next) {
 //module.exports = app;
 
 // 启动及端口
-http.createServer(app).listen(app.get('port'), function() {
+http.createServer(app).listen(app.get('port'), "0.0.0.0", function() {
     console.log('Express server listening on port ' + app.get('port'));
 });
